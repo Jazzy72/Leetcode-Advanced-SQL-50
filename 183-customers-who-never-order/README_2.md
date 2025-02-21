@@ -20,22 +20,24 @@ Suppose that a website contains two tables, the Customers table and the Orders t
 </pre>
 
 Table: Orders.
-
+<pre>
 +----+------------+
 | Id | CustomerId |
 +----+------------+
 | 1  | 3          |
 | 2  | 1          |
 +----+------------+
+</pre>
 
 Using the above tables as example, return the following:
-
+<pre>
 +-----------+
 | Customers |
 +-----------+
 | Henry     |
 | Max       |
 +-----------+
+</pre>
 
 ### Thinking:
 * Method
