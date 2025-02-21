@@ -8,6 +8,7 @@ Suppose that a website contains two tables, the Customers table and the Orders t
 
 <p>Table: <code>Customers</code></p>
 
+<pre>
 +----+-------+
 | Id | Name  |
 +----+-------+
@@ -16,6 +17,7 @@ Suppose that a website contains two tables, the Customers table and the Orders t
 | 3  | Sam   |
 | 4  | Max   |
 +----+-------+
+</pre>
 
 Table: Orders.
 
