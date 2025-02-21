@@ -1,4 +1,3 @@
-# [1821. Find Customers With Positive Revenue this Year 🔒](https://leetcode.com/problems/find-customers-with-positive-revenue-this-year)
 # [1873. Calculate Special Bonus](https://leetcode.com/problems/calculate-special-bonus/description/)
 
 Table: Employees
