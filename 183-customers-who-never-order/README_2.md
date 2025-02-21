@@ -1,9 +1,12 @@
 # [183. Customers Who Never Order](https://leetcode.com/problems/customers-who-never-order/description/)
 
 ## Description
+
+<!-- description:start -->
+
 Suppose that a website contains two tables, the Customers table and the Orders table. Write a SQL query to find all customers who never order anything.
 
-Table: Customers.
+<p>Table: <code>Customers</code></p>
 
 +----+-------+
 | Id | Name  |
