@@ -19,7 +19,7 @@ Suppose that a website contains two tables, the Customers table and the Orders t
 +----+-------+
 </pre>
 
-Table: Orders.
+<p>Table: <code>Orders</code></p>
 <pre>
 +----+------------+
 | Id | CustomerId |
