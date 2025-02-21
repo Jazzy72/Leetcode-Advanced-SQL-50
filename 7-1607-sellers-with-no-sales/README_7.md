@@ -6,15 +6,15 @@
 
 <p>Table: <code>Customers</code></p>
  <pre>
-+---------------------+---------+
-| Column Name         | Type    |
-+---------------------+---------+
-| customer_id         | int     |
-| customer_name       | varchar |
-+---------------------+---------+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| customer_id   | int     |
+| customer_name | varchar |
++---------------+---------+
 customer_id is the primary key for this table.
-customer_name is the name of the customer.
- </pre>
+Each row of this table contains the information of each customer in the WebStore.
+</pre>
  
 <p>Table: <code>Orders</code></p>
 <pre>
@@ -22,51 +22,73 @@ customer_name is the name of the customer.
 | Column Name   | Type    |
 +---------------+---------+
 | order_id      | int     |
+| sale_date     | date    |
+| order_cost    | int     |
 | customer_id   | int     |
-| product_name  | varchar |
+| seller_id     | int     |
 +---------------+---------+
 order_id is the primary key for this table.
-customer_id is the id of the customer who bought the product "product_name".
+Each row of this table contains all orders made in the webstore.
+sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
+</pre>
+
+<pre>
+ Table: Seller
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| seller_id     | int     |
+| seller_name   | varchar |
++---------------+---------+
+seller_id is the primary key for this table.
+Each row of this table contains the information of each seller.
  
 
-Write an  SQL query to report the customer_id and customer_name of customers who bought products "A", "B" but did not buy the product "C" since we want to recommend them buy this product.
+Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
 
-Return the result table ordered by customer_id.
+Return the result table ordered by seller_name in ascending order.
 
 The query result format is in the following example.
-
-Customers table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 1           | Daniel        |
-| 2           | Diana         |
-| 3           | Elizabeth     |
-| 4           | Jhon          |
-+-------------+---------------+
+ 
+Customer table:
++--------------+---------------+
+| customer_id  | customer_name |
++--------------+---------------+
+| 101          | Alice         |
+| 102          | Bob           |
+| 103          | Charlie       |
++--------------+---------------+
 
 Orders table:
-+------------+--------------+---------------+
-| order_id   | customer_id  | product_name  |
-+------------+--------------+---------------+
-| 10         |     1        |     A         |
-| 20         |     1        |     B         |
-| 30         |     1        |     D         |
-| 40         |     1        |     C         |
-| 50         |     2        |     A         |
-| 60         |     3        |     A         |
-| 70         |     3        |     B         |
-| 80         |     3        |     D         |
-| 90         |     4        |     C         |
-+------------+--------------+---------------+
++-------------+------------+--------------+-------------+-------------+
+| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
++-------------+------------+--------------+-------------+-------------+
+| 1           | 2020-03-01 | 1500         | 101         | 1           |
+| 2           | 2020-05-25 | 2400         | 102         | 2           |
+| 3           | 2019-05-25 | 800          | 101         | 3           |
+| 4           | 2020-09-13 | 1000         | 103         | 2           |
+| 5           | 2019-02-11 | 700          | 101         | 2           |
++-------------+------------+--------------+-------------+-------------+
+
+Seller table:
++-------------+-------------+
+| seller_id   | seller_name |
++-------------+-------------+
+| 1           | Daniel      |
+| 2           | Elizabeth   |
+| 3           | Frank       |
++-------------+-------------+
 
 Result table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 3           | Elizabeth     |
-+-------------+---------------+
-Only the customer_id with id 3 bought the product A and B but not the product C.
++-------------+
+| seller_name |
++-------------+
+| Frank       |
++-------------+
+Daniel made 1 sale in March 2020.
+Elizabeth made 2 sales in 2020 and 1 sale in 2019.
+Frank made 1 sale in 2019 but no sales in 2020.
 </pre>
 
 <!-- description:end -->
@@ -81,16 +103,14 @@ Only the customer_id with id 3 bought the product A and B but not the product C.
 
 ```sql
 # Write your MySQL query statement below
-select o.customer_id, c.customer_name
-from Orders o
-left join Customers c
-on c.customer_id = o.customer_id
-group by o.customer_id
-having sum(product_name='A') > 0 and sum(product_name='B') > 0 and sum(product_name='C') = 0
-order by 1
+select s.seller_name
+from Seller s
+left join Orders o
+on o.seller_id = s.seller_id and sale_date like '2020%' 
+where o.seller_id is null
+order by seller_name
 
--- amazon- 2
--- facebook- 1
+-- no companies listed
 ```
 
 <!-- tabs:end -->
