@@ -27,9 +27,6 @@ grade is never NULL.
 
 <p>&nbsp;</p>
 <p><strong class="example">Example 1:</strong></p>
-
-<p>&nbsp;</p>
-<p><strong class="example">Example 1:</strong></p>
 <pre>
 <strong>Input:</strong> 
 Enrollments table:
