@@ -38,9 +38,10 @@ Using the above tables as example, return the following:
 | Max       |
 +-----------+
 </pre>
+<!-- description:end -->
 
-### Thinking:
-* Method
+## Solution:
+<!-- solution:start -->
 
 ```SQL
 # Write your MySQL query statement below
@@ -53,4 +54,10 @@ where
 not in(
     select CustomerId from Orders
 );
+
+-- amazon- 3
+-- apple- 7
+-- bloomberg- 5
+-- adobe- 2
 ```
+<!-- solution:end -->
