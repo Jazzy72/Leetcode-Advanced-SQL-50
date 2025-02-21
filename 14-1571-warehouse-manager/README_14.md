@@ -4,92 +4,84 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
+<p>Table: <code>Warehouse</code></p>
  <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| name         | varchar |
+| product_id   | int     |
+| units        | int     |
++--------------+---------+
+(name, product_id) is the primary key for this table.
+Each row of this table contains the information of the products in each warehouse.
 </pre>
  
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Products</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
+| product_id    | int     |
+| product_name  | varchar |
+| Width         | int     |
+| Length        | int     |
+| Height        | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
+product_id is the primary key for this table.
+Each row of this table contains the information about the product dimensions (Width, Lenght and Height) in feets of each product.
 </pre>
  
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Write an SQL query to report, How much cubic feet of volume does the inventory occupy in each warehouse.
+* warehouse_name
+* volume
 
-Return the result table ordered by seller_name in ascending order.
+Return the result table in any order.
 
 The query result format is in the following example.
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
+ Warehouse table:
++------------+--------------+-------------+
+| name       | product_id   | units       |
++------------+--------------+-------------+
+| LCHouse1   | 1            | 1           |
+| LCHouse1   | 2            | 10          |
+| LCHouse1   | 3            | 5           |
+| LCHouse2   | 1            | 2           |
+| LCHouse2   | 2            | 2           |
+| LCHouse3   | 4            | 1           |
++------------+--------------+-------------+
 
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Products table:
++------------+--------------+------------+----------+-----------+
+| product_id | product_name | Width      | Length   | Height    |
++------------+--------------+------------+----------+-----------+
+| 1          | LC-TV        | 5          | 50       | 40        |
+| 2          | LC-KeyChain  | 5          | 5        | 5         |
+| 3          | LC-Phone     | 2          | 10       | 10        |
+| 4          | LC-T-Shirt   | 4          | 10       | 20        |
++------------+--------------+------------+----------+-----------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++----------------+------------+
+| warehouse_name | volume     |
++----------------+------------+
+| LCHouse1       | 12250      |
+| LCHouse2       | 20250      |
+| LCHouse3       | 800        |
++----------------+------------+
+Volume of product_id = 1 (LC-TV), 5x50x40 = 10000
+Volume of product_id = 2 (LC-KeyChain), 5x5x5 = 125
+Volume of product_id = 3 (LC-Phone), 2x10x10 = 200
+Volume of product_id = 4 (LC-T-Shirt), 4x10x20 = 800
+LCHouse1: 1 unit of LC-TV + 10 units of LC-KeyChain + 5 units of LC-Phone.
+          Total volume: 1*10000 + 10*125  + 5*200 = 12250 cubic feet
+LCHouse2: 2 units of LC-TV + 2 units of LC-KeyChain.
+          Total volume: 2*10000 + 2*125 = 20250 cubic feet
+LCHouse3: 1 unit of LC-T-Shirt.
+          Total volume: 1*800 = 800 cubic feet.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +96,15 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+select w.name as warehouse_name, 
+sum(units * Width * Length * Height) as volume
+from Warehouse w
+left join Products p
+on w.product_id = p.product_id
+group by 1
 
--- no companies listed
+
+-- amazon- 1
 ```
 
 <!-- tabs:end -->
