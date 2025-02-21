@@ -24,6 +24,8 @@ Return the result table ordered by student_id in ascending order.
 The result format is in the following example.
  </pre>
 
+<p>&nbsp;</p>
+<p><strong class="example">Example 1:</strong></p>
 <pre>
 <strong>Input:</strong> 
 Enrollments table:
