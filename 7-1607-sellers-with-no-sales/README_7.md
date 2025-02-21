@@ -32,8 +32,8 @@ Each row of this table contains all orders made in the webstore.
 sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
 </pre>
 
+Table: Seller
 <pre>
- Table: Seller
 
 +---------------+---------+
 | Column Name   | Type    |
