@@ -17,7 +17,6 @@
 employee_id is the primary key (column with unique values) for this table.
 Each row of this table indicates the employee ID, employee name, and salary.
  
-
 Write a solution to calculate the bonus of each employee. The bonus of an employee is 100% of their salary if the ID of the employee is an odd number and the employee's name does not start with the character 'M'. The bonus of an employee is 0 otherwise.
 
 Return the result table ordered by employee_id.
@@ -27,7 +26,7 @@ The result format is in the following example.
 </pre>
 
  
-
+<pre>
 Example 1:
 
 Input: 
@@ -55,3 +54,5 @@ Explanation:
 The employees with IDs 2 and 8 get 0 bonus because they have an even employee_id.
 The employee with ID 3 gets 0 bonus because their name starts with 'M'.
 The rest of the employees get a 100% bonus.
+
+</pre>
