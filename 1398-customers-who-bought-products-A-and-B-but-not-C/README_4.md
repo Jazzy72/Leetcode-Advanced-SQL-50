@@ -81,10 +81,16 @@ Only the customer_id with id 3 bought the product A and B but not the product C.
 
 ```sql
 # Write your MySQL query statement below
-select employee_id,
-    (case when employee_id % 2 = 1 and name not like 'M%' then salary else 0 end) as bonus
-from Employees
-order by employee_id
+select o.customer_id, c.customer_name
+from Orders o
+left join Customers c
+on c.customer_id = o.customer_id
+group by o.customer_id
+having sum(product_name='A') > 0 and sum(product_name='B') > 0 and sum(product_name='C') = 0
+order by 1
+
+-- amazon- 2
+-- facebook- 1
 ```
 
 <!-- tabs:end -->
