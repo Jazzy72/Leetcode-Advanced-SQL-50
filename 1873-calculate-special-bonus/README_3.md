@@ -23,10 +23,7 @@ Return the result table ordered by employee_id.
 
 The result format is in the following example.
 
-</pre>
-
  
-<pre>
 Example 1:
 
 Input: 
