@@ -7,7 +7,6 @@
 <pre>
 
 <p>Table: <code>Customers</code></p>
- 
 +---------------------+---------+
 | Column Name         | Type    |
 +---------------------+---------+
@@ -18,7 +17,6 @@ customer_id is the primary key for this table.
 customer_name is the name of the customer.
  
 <p>Table: <code>Orders</code></p>
-
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
