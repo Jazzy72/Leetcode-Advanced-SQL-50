@@ -5,91 +5,99 @@
 <!-- description:start -->
 
 <p>Table: <code>Customers</code></p>
- <pre>
+<pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
 | customer_id   | int     |
-| customer_name | varchar |
+| name          | varchar |
+| country       | varchar |
 +---------------+---------+
 customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+This table contains information of the customers in the company.
 </pre>
  
+<p>Table: <code>Product</code></p>
+<pre>
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| description   | varchar |
+| price         | int     |
++---------------+---------+
+product_id is the primary key for this table.
+This table contains information of the products in the company.
+price is the product cost.
+</pre>
+
 <p>Table: <code>Orders</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
 | order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
 | customer_id   | int     |
-| seller_id     | int     |
+| product_id    | int     |
+| order_date    | date    |
+| quantity      | int     |
 +---------------+---------+
 order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
+This table contains information on customer orders.
+customer_id is the id of the customer who bought "quantity" products with id "product_id".
+Order_date is the date in format ('YYYY-MM-DD') when the order was shipped.
 </pre>
  
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Write an  SQL query to report the customer_id and customer_name of customers who have spent at least $100 in each month of June and July 2020.
 
-Return the result table ordered by seller_name in ascending order.
+Return the result table in any order.
 
 The query result format is in the following example.
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
+Customers
++--------------+-----------+-------------+
+| customer_id  | name      | country     |
++--------------+-----------+-------------+
+| 1            | Winston   | USA         |
+| 2            | Jonathan  | Peru        |
+| 3            | Moustafa  | Egypt       |
++--------------+-----------+-------------+
 
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
+Product
++--------------+-------------+-------------+
+| product_id   | description | price       |
++--------------+-------------+-------------+
+| 10           | LC Phone    | 300         |
+| 20           | LC T-Shirt  | 10          |
+| 30           | LC Book     | 45          |
+| 40           | LC Keychain | 2           |
++--------------+-------------+-------------+
 
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Orders
++--------------+-------------+-------------+-------------+-----------+
+| order_id     | customer_id | product_id  | order_date  | quantity  |
++--------------+-------------+-------------+-------------+-----------+
+| 1            | 1           | 10          | 2020-06-10  | 1         |
+| 2            | 1           | 20          | 2020-07-01  | 1         |
+| 3            | 1           | 30          | 2020-07-08  | 2         |
+| 4            | 2           | 10          | 2020-06-15  | 2         |
+| 5            | 2           | 40          | 2020-07-01  | 10        |
+| 6            | 3           | 20          | 2020-06-24  | 2         |
+| 7            | 3           | 30          | 2020-06-25  | 2         |
+| 9            | 3           | 30          | 2020-05-08  | 3         |
++--------------+-------------+-------------+-------------+-----------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++--------------+------------+
+| customer_id  | name       |
++--------------+------------+
+| 1            | Winston    |
++--------------+------------+
+Winston spent $300 (300 * 1) in June and $100 ( 10 * 1 + 45 * 2) in July 2020.
+Jonathan spent $600 (300 * 2) in June and $20 ( 2 * 10) in July 2020.
+Moustafa spent $110 (10 * 2 + 45 * 2) in June and $0 in July 2020.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +112,26 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- create a temp table- join all tables
+-- create 2 additional columns- expenditure in June and in July- CASE, AGGREGATE
+-- in the main query, pull customer ids where expenditure in both columns are >= 100
 
--- no companies listed
+with CTE as(select c.customer_id, c.name, 
+    sum(case when left(o.order_date, 7) = '2020-06' then p.price*o.quantity else 0 end) june_spent,
+    sum(case when left(o.order_date, 7) = '2020-07' then p.price*o.quantity else 0 end) july_spent
+from Customers c
+join Orders o 
+on c.customer_id = o.customer_id
+join Product p
+on p.product_id = o.product_id
+group by 1)
+
+select customer_id, name 
+from CTE
+where june_spent >= 100 and july_spent >= 100
+
+
+-- amazon- 1
 ```
 
 <!-- tabs:end -->
