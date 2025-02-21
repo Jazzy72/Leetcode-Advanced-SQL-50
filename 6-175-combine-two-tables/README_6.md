@@ -4,69 +4,63 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
+<p>Table: <code>Person</code></p>
  <pre>
-+---------------------+---------+
-| Column Name         | Type    |
-+---------------------+---------+
-| customer_id         | int     |
-| customer_name       | varchar |
-+---------------------+---------+
-customer_id is the primary key for this table.
-customer_name is the name of the customer.
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| personId    | int     |
+| lastName    | varchar |
+| firstName   | varchar |
++-------------+---------+
+personId is the primary key (column with unique values) for this table.
+This table contains information about the ID of some persons and their first and last names.
  </pre>
  
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Address</code></p>
 <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| order_id      | int     |
-| customer_id   | int     |
-| product_name  | varchar |
-+---------------+---------+
-order_id is the primary key for this table.
-customer_id is the id of the customer who bought the product "product_name".
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| addressId   | int     |
+| personId    | int     |
+| city        | varchar |
+| state       | varchar |
++-------------+---------+
+addressId is the primary key (column with unique values) for this table.
+Each row of this table contains information about the city and state of one person with ID = PersonId.
  
 
-Write an  SQL query to report the customer_id and customer_name of customers who bought products "A", "B" but did not buy the product "C" since we want to recommend them buy this product.
+Write a solution to report the first name, last name, city, and state of each person in the Person table. If the address of a personId is not present in the Address table, report null instead.
 
-Return the result table ordered by customer_id.
+Return the result table in any order.
 
-The query result format is in the following example.
+The result format is in the following example.
 
-Customers table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 1           | Daniel        |
-| 2           | Diana         |
-| 3           | Elizabeth     |
-| 4           | Jhon          |
-+-------------+---------------+
-
-Orders table:
-+------------+--------------+---------------+
-| order_id   | customer_id  | product_name  |
-+------------+--------------+---------------+
-| 10         |     1        |     A         |
-| 20         |     1        |     B         |
-| 30         |     1        |     D         |
-| 40         |     1        |     C         |
-| 50         |     2        |     A         |
-| 60         |     3        |     A         |
-| 70         |     3        |     B         |
-| 80         |     3        |     D         |
-| 90         |     4        |     C         |
-+------------+--------------+---------------+
+Person table:
++----------+----------+-----------+
+| personId | lastName | firstName |
++----------+----------+-----------+
+| 1        | Wang     | Allen     |
+| 2        | Alice    | Bob       |
++----------+----------+-----------+
+Address table:
++-----------+----------+---------------+------------+
+| addressId | personId | city          | state      |
++-----------+----------+---------------+------------+
+| 1         | 2        | New York City | New York   |
+| 2         | 3        | Leetcode      | California |
++-----------+----------+---------------+------------+
 
 Result table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 3           | Elizabeth     |
-+-------------+---------------+
-Only the customer_id with id 3 bought the product A and B but not the product C.
++-----------+----------+---------------+----------+
+| firstName | lastName | city          | state    |
++-----------+----------+---------------+----------+
+| Allen     | Wang     | Null          | Null     |
+| Bob       | Alice    | New York City | New York |
++-----------+----------+---------------+----------+
+Explanation: There is no address in the address table for the personId = 1 so we return null in their city and state.
+addressId = 1 contains information about the address of personId = 2.
 </pre>
 
 <!-- description:end -->
@@ -81,16 +75,20 @@ Only the customer_id with id 3 bought the product A and B but not the product C.
 
 ```sql
 # Write your MySQL query statement below
-select o.customer_id, c.customer_name
-from Orders o
-left join Customers c
-on c.customer_id = o.customer_id
-group by o.customer_id
-having sum(product_name='A') > 0 and sum(product_name='B') > 0 and sum(product_name='C') = 0
-order by 1
+-- simple LEFT JOIN
 
+select p.firstName, p.lastName, a.city, a.state
+from Person p
+left join Address a
+using(personId)
+
+
+-- apple- 4
+-- bloomberg- 2
 -- amazon- 2
--- facebook- 1
+-- microsoft- 2
+-- adobe- 3
+-- google- 3
 ```
 
 <!-- tabs:end -->
