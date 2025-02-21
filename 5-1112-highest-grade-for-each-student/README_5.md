@@ -62,16 +62,30 @@ Enrollments table:
 
 ```sql
 # Write your MySQL query statement below
-select o.customer_id, c.customer_name
-from Orders o
-left join Customers c
-on c.customer_id = o.customer_id
-group by o.customer_id
-having sum(product_name='A') > 0 and sum(product_name='B') > 0 and sum(product_name='C') = 0
+-- use RANK() and pull results where rank = 1
+
+select student_id,  course_id, grade
+from
+    (select student_id, course_id, grade, dense_rank() over(partition by student_id order by grade desc, course_id asc) as rnk
+    from Enrollments) temp1
+where rnk = 1
 order by 1
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- nested 
+-- first get id and highest grade, then get min course_id
+
+select student_id, min(course_id) as course_id, grade
+from Enrollments
+where (student_id, grade) in
+    (select student_id, max(grade) as grade
+    from Enrollments
+    group by student_id)
+group by student_id
+order by student_id
+
 -- amazon- 2
--- facebook- 1
+-- coursera- 1
 ```
 
 <!-- tabs:end -->
