@@ -1,7 +1,12 @@
 # [1873. Calculate Special Bonus](https://leetcode.com/problems/calculate-special-bonus/description/)
 
-Table: Employees
+## Description
 
+<!-- description:start -->
+
+<p>Table: <code>Employees</code></p>
+
+<pre>
 +-------------+---------+
 | Column Name | Type    |
 +-------------+---------+
@@ -18,6 +23,8 @@ Write a solution to calculate the bonus of each employee. The bonus of an employ
 Return the result table ordered by employee_id.
 
 The result format is in the following example.
+
+</pre>
 
  
 
