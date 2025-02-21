@@ -53,3 +53,25 @@ The employee with ID 3 gets 0 bonus because their name starts with 'M'.
 The rest of the employees get a 100% bonus.
 
 </pre>
+
+<!-- description:end -->
+
+## Solutions
+
+<!-- solution:start -->
+
+<!-- tabs:start -->
+
+#### MySQL
+
+```sql
+# Write your MySQL query statement below
+select employee_id,
+    (case when employee_id % 2 = 1 and name not like 'M%' then salary else 0 end) as bonus
+from Employees
+order by employee_id
+```
+
+<!-- tabs:end -->
+
+<!-- solution:end -->
