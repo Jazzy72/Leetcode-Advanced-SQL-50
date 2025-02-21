@@ -4,92 +4,69 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+<p>Table: <code>Players</code></p>
+<pre>
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| player_id      | int     |
+| player_name    | varchar |
++----------------+---------+
+player_id is the primary key for this table.
+Each row in this table contains the name and the ID of a tennis player.
 </pre>
  
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Championships</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
+| year          | int     |
+| Wimbledon     | int     |
+| Fr_open       | int     |
+| US_open       | int     |
+| Au_open       | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
+year is the primary key for this table.
+Each row of this table containts the IDs of the players who won one each tennis tournament of the grand slam.
 </pre>
 
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
-</pre>
- 
+Write an  SQL query to report the number of grand slam tournaments won by each player. Do not include the players who did not win any tournament.
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Return the result table in any order.
 
-Return the result table ordered by seller_name in ascending order.
-
-The query result format is in the following example.
+The query result format is in the following example:
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
+Players table:
++-----------+-------------+
+| player_id | player_name |
++-----------+-------------+
+| 1         | Nadal       |
+| 2         | Federer     |
+| 3         | Novak       |
++-----------+-------------+
 
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Championships table:
++------+-----------+---------+---------+---------+
+| year | Wimbledon | Fr_open | US_open | Au_open |
++------+-----------+---------+---------+---------+
+| 2018 | 1         | 1       | 1       | 1       |
+| 2019 | 1         | 1       | 2       | 2       |
+| 2020 | 2         | 1       | 2       | 2       |
++------+-----------+---------+---------+---------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++-----------+-------------+-------------------+
+| player_id | player_name | grand_slams_count |
++-----------+-------------+-------------------+
+| 2         | Federer     | 5                 |
+| 1         | Nadal       | 7                 |
++-----------+-------------+-------------------+
+
+Player 1 (Nadal) won 7 titles: Wimbledon (2018, 2019), Fr_open (2018, 2019, 2020), US_open (2018), and Au_open (2018).
+Player 2 (Federer) won 5 titles: Wimbledon (2020), US_open (2019, 2020), and Au_open (2019, 2020).
+Player 3 (Novak) did not win anything, we did not include them in the result table.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +81,23 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- using cross join
+-- using aggregate function because we want to group by each player
+-- using cross join, we are getting all players and all championships
+-- so we use having to filter only those players who have won at least 1
 
--- no companies listed
+select p.player_id, p.player_name,
+    sum(case when p.player_id = c.Wimbledon then 1 else 0 end +
+        case when p.player_id = c.Fr_open then 1 else 0 end +
+        case when p.player_id = c.US_open then 1 else 0 end +
+        case when p.player_id = c.Au_open then 1 else 0 end) as grand_slams_count
+from Players p 
+cross join Championships c
+group by p.player_id
+having grand_slams_count > 0
+
+
+-- amazon- 1
 ```
 
 <!-- tabs:end -->
