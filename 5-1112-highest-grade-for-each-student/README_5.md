@@ -4,71 +4,47 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
+<p>Table: <code>Enrollments</code></p>
  <pre>
-+---------------------+---------+
-| Column Name         | Type    |
-+---------------------+---------+
-| customer_id         | int     |
-| customer_name       | varchar |
-+---------------------+---------+
-customer_id is the primary key for this table.
-customer_name is the name of the customer.
- </pre>
- 
-<p>Table: <code>Orders</code></p>
-<pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| customer_id   | int     |
-| product_name  | varchar |
+| student_id    | int     |
+| course_id     | int     |
+| grade         | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-customer_id is the id of the customer who bought the product "product_name".
+(student_id, course_id) is the primary key (combination of columns with unique values) of this table.
+grade is never NULL.
  
 
-Write an  SQL query to report the customer_id and customer_name of customers who bought products "A", "B" but did not buy the product "C" since we want to recommend them buy this product.
+Write a solution to find the highest grade with its corresponding course for each student. In case of a tie, you should find the course with the smallest course_id.
 
-Return the result table ordered by customer_id.
+Return the result table ordered by student_id in ascending order.
 
-The query result format is in the following example.
-
-Customers table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 1           | Daniel        |
-| 2           | Diana         |
-| 3           | Elizabeth     |
-| 4           | Jhon          |
-+-------------+---------------+
-
-Orders table:
-+------------+--------------+---------------+
-| order_id   | customer_id  | product_name  |
-+------------+--------------+---------------+
-| 10         |     1        |     A         |
-| 20         |     1        |     B         |
-| 30         |     1        |     D         |
-| 40         |     1        |     C         |
-| 50         |     2        |     A         |
-| 60         |     3        |     A         |
-| 70         |     3        |     B         |
-| 80         |     3        |     D         |
-| 90         |     4        |     C         |
-+------------+--------------+---------------+
-
-Result table:
-+-------------+---------------+
-| customer_id | customer_name |
-+-------------+---------------+
-| 3           | Elizabeth     |
-+-------------+---------------+
-Only the customer_id with id 3 bought the product A and B but not the product C.
+The result format is in the following example.
+ </pre>
+ 
+Enrollments table:
++------------+-------------------+
+| student_id | course_id | grade |
++------------+-----------+-------+
+| 2          | 2         | 95    |
+| 2          | 3         | 95    |
+| 1          | 1         | 90    |
+| 1          | 2         | 99    |
+| 3          | 1         | 80    |
+| 3          | 2         | 75    |
+| 3          | 3         | 82    |
++------------+-----------+-------+
+<strong>Output:</strong> 
++------------+-------------------+
+| student_id | course_id | grade |
++------------+-----------+-------+
+| 1          | 2         | 99    |
+| 2          | 2         | 95    |
+| 3          | 3         | 82    |
++------------+-----------+-------+
 </pre>
-
 <!-- description:end -->
 
 ## Solutions
