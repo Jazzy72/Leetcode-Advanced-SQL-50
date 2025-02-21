@@ -4,10 +4,9 @@
 
 <!-- description:start -->
 
-<pre>
-
 <p>Table: <code>Customers</code></p>
- 
+
+ <pre>
 +---------------------+---------+
 | Column Name         | Type    |
 +---------------------+---------+
