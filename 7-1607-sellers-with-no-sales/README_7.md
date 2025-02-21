@@ -34,7 +34,6 @@ sale_date is the date when the transaction was made between the customer (custom
 
 Table: Seller
 <pre>
-
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
@@ -43,6 +42,7 @@ Table: Seller
 +---------------+---------+
 seller_id is the primary key for this table.
 Each row of this table contains the information of each seller.
+</pre>
  
 
 Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
@@ -50,7 +50,8 @@ Write an  SQL query to report the names of all sellers who did not make any sale
 Return the result table ordered by seller_name in ascending order.
 
 The query result format is in the following example.
- 
+
+<pre>
 Customer table:
 +--------------+---------------+
 | customer_id  | customer_name |
