@@ -10,8 +10,6 @@ tags:
 
 # [1821. Find Customers With Positive Revenue this Year](https://leetcode.com/problems/find-customers-with-positive-revenue-this-year)
 
-(/solution/1800-1899/1821.Find%20Customers%20With%20Positive%20Revenue%20this%20Year/README.md)
-
 ## Description
 
 <!-- description:start -->
