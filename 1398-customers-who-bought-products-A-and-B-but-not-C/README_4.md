@@ -4,54 +4,70 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Employees</code></p>
-
 <pre>
-+-------------+---------+
-| Column Name | Type    |
-+-------------+---------+
-| employee_id | int     |
-| name        | varchar |
-| salary      | int     |
-+-------------+---------+
-employee_id is the primary key (column with unique values) for this table.
-Each row of this table indicates the employee ID, employee name, and salary.
+
+<p>Table: <code>Customers</code></p>
  
-Write a solution to calculate the bonus of each employee. The bonus of an employee is 100% of their salary if the ID of the employee is an odd number and the employee's name does not start with the character 'M'. The bonus of an employee is 0 otherwise.
-
-Return the result table ordered by employee_id.
-
-The result format is in the following example.
-
++---------------------+---------+
+| Column Name         | Type    |
++---------------------+---------+
+| customer_id         | int     |
+| customer_name       | varchar |
++---------------------+---------+
+customer_id is the primary key for this table.
+customer_name is the name of the customer.
  
-Example 1:
+<p>Table: <code>Orders</code></p>
 
-Input: 
-Employees table:
-+-------------+---------+--------+
-| employee_id | name    | salary |
-+-------------+---------+--------+
-| 2           | Meir    | 3000   |
-| 3           | Michael | 3800   |
-| 7           | Addilyn | 7400   |
-| 8           | Juan    | 6100   |
-| 9           | Kannon  | 7700   |
-+-------------+---------+--------+
-Output: 
-+-------------+-------+
-| employee_id | bonus |
-+-------------+-------+
-| 2           | 0     |
-| 3           | 0     |
-| 7           | 7400  |
-| 8           | 0     |
-| 9           | 7700  |
-+-------------+-------+
-Explanation: 
-The employees with IDs 2 and 8 get 0 bonus because they have an even employee_id.
-The employee with ID 3 gets 0 bonus because their name starts with 'M'.
-The rest of the employees get a 100% bonus.
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| order_id      | int     |
+| customer_id   | int     |
+| product_name  | varchar |
++---------------+---------+
+order_id is the primary key for this table.
+customer_id is the id of the customer who bought the product "product_name".
+ 
 
+Write an  SQL query to report the customer_id and customer_name of customers who bought products "A", "B" but did not buy the product "C" since we want to recommend them buy this product.
+
+Return the result table ordered by customer_id.
+
+The query result format is in the following example.
+
+Customers table:
++-------------+---------------+
+| customer_id | customer_name |
++-------------+---------------+
+| 1           | Daniel        |
+| 2           | Diana         |
+| 3           | Elizabeth     |
+| 4           | Jhon          |
++-------------+---------------+
+
+Orders table:
++------------+--------------+---------------+
+| order_id   | customer_id  | product_name  |
++------------+--------------+---------------+
+| 10         |     1        |     A         |
+| 20         |     1        |     B         |
+| 30         |     1        |     D         |
+| 40         |     1        |     C         |
+| 50         |     2        |     A         |
+| 60         |     3        |     A         |
+| 70         |     3        |     B         |
+| 80         |     3        |     D         |
+| 90         |     4        |     C         |
++------------+--------------+---------------+
+
+Result table:
++-------------+---------------+
+| customer_id | customer_name |
++-------------+---------------+
+| 3           | Elizabeth     |
++-------------+---------------+
+Only the customer_id with id 3 bought the product A and B but not the product C.
 </pre>
 
 <!-- description:end -->
