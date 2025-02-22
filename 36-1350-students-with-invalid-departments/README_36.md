@@ -4,92 +4,73 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
+<p>Table: <code>Departments</code></p>
+<pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
+| id            | int     |
+| name          | varchar |
 +---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+In SQL, id is the primary key of this table.
+The table has information about the id of each department of a university.
 </pre>
  
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Students</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
+| id            | int     |
+| name          | varchar |
+| department_id | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
+In SQL, id is the primary key of this table.
+The table has information about the id of each student at a university and the id of the department he/she studies at.
 </pre>
  
+Find the id and the name of all students who are enrolled in departments that no longer exist.
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Return the result table in any order.
 
-Return the result table ordered by seller_name in ascending order.
-
-The query result format is in the following example.
+The result format is in the following example.
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
-
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Departments table:
++------+--------------------------+
+| id   | name                     |
++------+--------------------------+
+| 1    | Electrical Engineering   |
+| 7    | Computer Engineering     |
+| 13   | Bussiness Administration |
++------+--------------------------+
+Students table:
++------+----------+---------------+
+| id   | name     | department_id |
++------+----------+---------------+
+| 23   | Alice    | 1             |
+| 1    | Bob      | 7             |
+| 5    | Jennifer | 13            |
+| 2    | John     | 14            |
+| 4    | Jasmine  | 77            |
+| 3    | Steve    | 74            |
+| 6    | Luis     | 1             |
+| 8    | Jonathan | 7             |
+| 7    | Daiana   | 33            |
+| 11   | Madelynn | 1             |
++------+----------+---------------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++------+----------+
+| id   | name     |
++------+----------+
+| 2    | John     |
+| 7    | Daiana   |
+| 4    | Jasmine  |
+| 3    | Steve    |
++------+----------+
+Explanation: 
+John, Daiana, Steve, and Jasmine are enrolled in departments 14, 33, 74, and 77 respectively. department 14, 33, 74, and 77 do not exist in the Departments table.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +85,26 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- subquery- use WHERE
 
--- no companies listed
+select id, name
+from Students
+where department_id not in 
+    (select id
+    from Departments)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- join- use WHERE id is null
+
+select s.id, s.name
+from Students s
+left join Departments d
+on d.id = s.department_id
+where d.id is null
+
+
+-- amazon- 1
 ```
 
 <!-- tabs:end -->
