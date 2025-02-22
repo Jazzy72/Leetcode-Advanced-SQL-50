@@ -5,15 +5,15 @@
 <!-- description:start -->
 
 <p>Table: <code>Customers</code></p>
- <pre>
+<pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
 | customer_id   | int     |
-| customer_name | varchar |
+| name          | varchar |
 +---------------+---------+
 customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+This table contains information about customers.
 </pre>
  
 <p>Table: <code>Orders</code></p>
@@ -22,74 +22,68 @@ Each row of this table contains the information of each customer in the WebStore
 | Column Name   | Type    |
 +---------------+---------+
 | order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
+| order_date    | date    |
 | customer_id   | int     |
-| seller_id     | int     |
+| cost          | int     |
 +---------------+---------+
 order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
+This table contains information about the orders made customer_id.
+Each customer has one order per day.
 </pre>
  
+Write an  SQL query to find the most recent 3 orders of each user. If a user ordered less than 3 orders return all of their orders.
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Return the result table sorted by customer_name in ascending order and in case of a tie by the customer_id in ascending order. If there still a tie, order them by the order_date in descending order.
 
-Return the result table ordered by seller_name in ascending order.
-
-The query result format is in the following example.
+The query result format is in the following example:
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
+Customers
++-------------+-----------+
+| customer_id | name      |
++-------------+-----------+
+| 1           | Winston   |
+| 2           | Jonathan  |
+| 3           | Annabelle |
+| 4           | Marwan    |
+| 5           | Khaled    |
++-------------+-----------+
 
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Orders
++----------+------------+-------------+------+
+| order_id | order_date | customer_id | cost |
++----------+------------+-------------+------+
+| 1        | 2020-07-31 | 1           | 30   |
+| 2        | 2020-07-30 | 2           | 40   |
+| 3        | 2020-07-31 | 3           | 70   |
+| 4        | 2020-07-29 | 4           | 100  |
+| 5        | 2020-06-10 | 1           | 1010 |
+| 6        | 2020-08-01 | 2           | 102  |
+| 7        | 2020-08-01 | 3           | 111  |
+| 8        | 2020-08-03 | 1           | 99   |
+| 9        | 2020-08-07 | 2           | 32   |
+| 10       | 2020-07-15 | 1           | 2    |
++----------+------------+-------------+------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++---------------+-------------+----------+------------+
+| customer_name | customer_id | order_id | order_date |
++---------------+-------------+----------+------------+
+| Annabelle     | 3           | 7        | 2020-08-01 |
+| Annabelle     | 3           | 3        | 2020-07-31 |
+| Jonathan      | 2           | 9        | 2020-08-07 |
+| Jonathan      | 2           | 6        | 2020-08-01 |
+| Jonathan      | 2           | 2        | 2020-07-30 |
+| Marwan        | 4           | 4        | 2020-07-29 |
+| Winston       | 1           | 8        | 2020-08-03 |
+| Winston       | 1           | 1        | 2020-07-31 |
+| Winston       | 1           | 10       | 2020-07-15 |
++---------------+-------------+----------+------------+
+Winston has 4 orders, we discard the order of "2020-06-10" because it is the oldest order.
+Annabelle has only 2 orders, we return them.
+Jonathan has exactly 3 orders.
+Marwan ordered only one time.
+We sort the result table by customer_name in ascending order, by customer_id in ascending order and by order_date in descending order in case of a tie.
 </pre>
 
 <!-- description:end -->
@@ -104,12 +98,19 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- we needed top 3, so subquery won't be possible without window function
+-- used dense_rank()
+
+with CTE as
+    (select *, dense_rank() over(partition by customer_id order by order_date desc) as rnk
+    from Orders)
+
+select c.name as customer_name, CTE.customer_id, CTE.order_id, CTE.order_date
+from CTE
+join Customers c
+on CTE.customer_id = c.customer_id
+where rnk <= 3
+order by name, customer_id, order_date desc
 
 -- no companies listed
 ```
