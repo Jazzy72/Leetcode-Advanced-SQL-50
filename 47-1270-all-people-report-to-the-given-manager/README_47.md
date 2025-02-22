@@ -4,92 +4,57 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
-</pre>
- 
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Employees</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
+| employee_id   | int     |
+| employee_name | varchar |
+| manager_id    | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
+employee_id is the primary key for this table.
+Each row of this table indicates that the employee with ID employee_id and name employee_name reports his work to his/her direct manager with manager_id
+The head of the company is the employee with employee_id = 1.
 </pre>
 
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
-</pre>
- 
+Write an  SQL query to find employee_id of all employees that directly or indirectly report their work to the head of the company.
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+The indirect relation between managers will not exceed 3 managers as the company is small.
 
-Return the result table ordered by seller_name in ascending order.
+Return result table in any order without duplicates.
 
-The query result format is in the following example.
+The query result format is in the following example:
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
-
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Employees table:
++-------------+---------------+------------+
+| employee_id | employee_name | manager_id |
++-------------+---------------+------------+
+| 1           | Boss          | 1          |
+| 3           | Alice         | 3          |
+| 2           | Bob           | 1          |
+| 4           | Daniel        | 2          |
+| 7           | Luis          | 4          |
+| 8           | Jhon          | 3          |
+| 9           | Angela        | 8          |
+| 77          | Robert        | 1          |
++-------------+---------------+------------+
 
 Result table:
 +-------------+
-| seller_name |
+| employee_id |
 +-------------+
-| Frank       |
+| 2           |
+| 77          |
+| 4           |
+| 7           |
 +-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
+The head of the company is the employee with employee_id 1.
+The employees with employee_id 2 and 77 report their work directly to the head of the company.
+The employee with employee_id 4 report his work indirectly to the head of the company 4 --> 2 --> 1.
+The employee with employee_id 7 report his work indirectly to the head of the company 7 --> 4 --> 2 --> 1.
+The employees with employee_id 3, 8 and 9 don't report their work to head of company directly or indirectly.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +69,17 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+select e1.employee_id
+from Employees e1
+join Employees e2
+on e1.manager_id = e2.employee_id
+join Employees e3
+on e2.manager_id = e3.employee_id
+where e3.manager_id = 1 and e1.employee_id != 1
 
--- no companies listed
+
+-- adobe- 2
+-- google- 1
 ```
 
 <!-- tabs:end -->
