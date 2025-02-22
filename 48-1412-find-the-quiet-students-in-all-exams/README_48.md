@@ -4,92 +4,80 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+<p>Table: <code>Student</code></p>
+<pre>
++---------------------+---------+
+| Column Name         | Type    |
++---------------------+---------+
+| student_id          | int     |
+| student_name        | varchar |
++---------------------+---------+
+student_id is the primary key for this table.
+student_name is the name of the student.
 </pre>
- 
-<p>Table: <code>Orders</code></p>
+
+<p>Table: <code>Exam</code></p>
 <pre>
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
+| exam_id       | int     |
+| student_id    | int     |
+| score         | int     |
 +---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
+(exam_id, student_id) is the primary key for this table.
+Student with student_id got score points in exam with id exam_id.
 </pre>
  
+A "quite" student is the one who took at least one exam and didn't score neither the high score nor the low score.
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Write an  SQL query to report the students (student_id, student_name) being "quiet" in ALL exams.
 
-Return the result table ordered by seller_name in ascending order.
+Don't return the student who has never taken any exam. Return the result table ordered by student_id.
 
 The query result format is in the following example.
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
+Student table:
++-------------+---------------+
+| student_id  | student_name  |
++-------------+---------------+
+| 1           | Daniel        |
+| 2           | Jade          |
+| 3           | Stella        |
+| 4           | Jonathan      |
+| 5           | Will          |
++-------------+---------------+
 
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+Exam table:
++------------+--------------+-----------+
+| exam_id    | student_id   | score     |
++------------+--------------+-----------+
+| 10         |     1        |    70     |
+| 10         |     2        |    80     |
+| 10         |     3        |    90     |
+| 20         |     1        |    80     |
+| 30         |     1        |    70     |
+| 30         |     3        |    80     |
+| 30         |     4        |    90     |
+| 40         |     1        |    60     |
+| 40         |     2        |    70     |
+| 40         |     4        |    80     |
++------------+--------------+-----------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++-------------+---------------+
+| student_id  | student_name  |
++-------------+---------------+
+| 2           | Jade          |
++-------------+---------------+
+
+For exam 1: Student 1 and 3 hold the lowest and high score respectively.
+For exam 2: Student 1 hold both highest and lowest score.
+For exam 3 and 4: Studnet 1 and 4 hold the lowest and high score respectively.
+Student 2 and 5 have never got the highest or lowest in any of the exam.
+Since student 5 is not taking any exam, he is excluded from the result.
+So, we only return the information of Student 2.
 </pre>
 
 <!-- description:end -->
@@ -104,12 +92,28 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- CTE- find highest rank and lowest rank in 2 separate columns using dense_rank()
+-- pull student_id from Exam table- note that student_id is not primary key, so use distnct
+-- pull name from Student table
+-- use Exam as left table because we don't want students who didn't take any exams
+-- use WHERE condition not in-> CTE
+  
+with CTE as 
+    (select exam_id, student_id, score, 
+        dense_rank() over(partition by exam_id order by score desc) rank_highest,
+        dense_rank() over(partition by exam_id order by score asc) rank_lowest
+    from Exam)
+
+select distinct e.student_id, s.student_name
+from Exam e
+left join Student s
+on e.student_id = s.student_id
+where e.student_id not in
+    (select student_id 
+    from CTE
+    where rank_highest = 1 or rank_lowest = 1)
+order by 1
+
 
 -- no companies listed
 ```
