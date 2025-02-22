@@ -4,92 +4,74 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+<p>Table: <code>Failed</code></p>
+<pre>
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| fail_date    | date    |
++--------------+---------+
+Primary key for this table is fail_date.
+Failed table contains the days of failed tasks.
 </pre>
  
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>Succeeded</code></p>
 <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
-+---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| success_date | date    |
++--------------+---------+
+Primary key for this table is success_date.
+Succeeded table contains the days of succeeded tasks.
 </pre>
 
-<p>Table: <code>Seller</code></p>
+A system is running one task every day. Every task is independent of the previous tasks. The tasks can fail or succeed.
+
+Write an  SQL query to generate a report of period_state for each continuous interval of days in the period from 2019-01-01 to 2019-12-31.
+
+
+period_state is 'failed' if tasks in this interval failed or 'succeeded' if tasks in this interval succeeded. Interval of days are retrieved as start_date and end_date.
+
+Order result by start_date.
+
+The query result format is in the following example:
+
 <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
-</pre>
+Failed table:
++-------------------+
+| fail_date         |
++-------------------+
+| 2018-12-28        |
+| 2018-12-29        |
+| 2019-01-04        |
+| 2019-01-05        |
++-------------------+
+
+Succeeded table:
++-------------------+
+| success_date      |
++-------------------+
+| 2018-12-30        |
+| 2018-12-31        |
+| 2019-01-01        |
+| 2019-01-02        |
+| 2019-01-03        |
+| 2019-01-06        |
++-------------------+
  
-
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
-
-Return the result table ordered by seller_name in ascending order.
-
-The query result format is in the following example.
-
-<pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
-
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
-
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++--------------+--------------+--------------+
+| period_state | start_date   | end_date     |
++--------------+--------------+--------------+
+| succeeded    | 2019-01-01   | 2019-01-03   |
+| failed       | 2019-01-04   | 2019-01-05   |
+| succeeded    | 2019-01-06   | 2019-01-06   |
++--------------+--------------+--------------+
+The report ignored the system state in 2018 as we care about the system in the period 2019-01-01 to 2019-12-31.
+From 2019-01-01 to 2019-01-03 all tasks succeeded and the system state was "succeeded".
+From 2019-01-04 to 2019-01-05 all tasks failed and system state was "failed".
+From 2019-01-06 to 2019-01-06 all tasks succeeded and system state was "succeeded".
 </pre>
 
 <!-- description:end -->
@@ -104,14 +86,27 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+with cte1 as
+    ((select fail_date as event_date, 'failed' as status
+    from Failed)
+    union all
+    (select success_date as event_date, 'succeeded' as status
+    from Succeeded)),
+    cte2 as
+    (select *,
+        row_number() over(order by event_date) as rn,
+        dense_rank() over (partition by status order by event_date) as rnk,
+        row_number() over(order by event_date) - dense_rank() over (partition by status order by event_date) as diff   
+    from cte1
+    where event_date between '2019-01-01' and '2019-12-31'
+    order by 1)
 
--- no companies listed
+select status as period_state, min(event_date) as start_date, max(event_date) as end_date
+from cte2
+group by status, diff
+order by 2
+
+-- facebook- 1
 ```
 
 <!-- tabs:end -->
