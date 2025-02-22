@@ -4,92 +4,57 @@
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
+<p>Table: <code>UserVisits</code></p>
+<pre>
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| user_id     | int  |
+| visit_date  | date |
++-------------+------+
+This table does not have a primary key.
+This table contains logs of the dates that users vistied a certain retailer.
 </pre>
  
-<p>Table: <code>Orders</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
-+---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
+Assume today's date is '2021-1-1'.
 
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
-</pre>
- 
+Write an SQL query that will, for each user_id, find out the largest window of days between each visit and the one right after it (or today if you are considering the last visit).
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Return the result table ordered by user_id.
 
-Return the result table ordered by seller_name in ascending order.
-
-The query result format is in the following example.
+The query result format is in the following example:
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
-
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+UserVisits table:
++---------+------------+
+| user_id | visit_date |
++---------+------------+
+| 1       | 2020-11-28 |
+| 1       | 2020-10-20 |
+| 1       | 2020-12-3  |
+| 2       | 2020-10-5  |
+| 2       | 2020-12-9  |
+| 3       | 2020-11-11 |
++---------+------------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++---------+---------------+
+| user_id | biggest_window|
++---------+---------------+
+| 1       | 39            |
+| 2       | 65            |
+| 3       | 51            |
++---------+---------------+
+For the first user, the windows in question are between dates:
+    - 2020-10-20 and 2020-11-28 with a total of 39 days.
+    - 2020-11-28 and 2020-12-3 with a total of 5 days.
+    - 2020-12-3 and 2021-1-1 with a total of 29 days.
+Making the biggest window the one with 39 days.
+For the second user, the windows in question are between dates:
+    - 2020-10-5 and 2020-12-9 with a total of 65 days.
+    - 2020-12-9 and 2021-1-1 with a total of 23 days.
+Making the biggest window the one with 65 days.
+For the third user, the only window in question is between dates 2020-11-11 and 2021-1-1 with a total of 51 days.
 </pre>
 
 <!-- description:end -->
@@ -104,12 +69,18 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- use lead() to get next date
+-- if there's no date, difference has to be calculated with 2021-1-1, so put this value in lead()
+
+with CTE as 
+    (select user_id, visit_date, 
+    lead(visit_date, 1, '2021-1-1') over(partition by user_id order by visit_date) as next_date
+    from UserVisits)
+
+select user_id, max(datediff(next_date, visit_date)) as biggest_window
+from CTE
+group by user_id
+
 
 -- no companies listed
 ```
