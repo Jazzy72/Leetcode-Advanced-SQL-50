@@ -1,95 +1,57 @@
-# [1607. Sellers With No Sales](https://leetcode.com/problems/sellers-with-no-sales/description/)
+# [1747. Leetflex Banned Accounts](https://leetcode.com/problems/leetflex-banned-accounts/description)
 
 ## Description
 
 <!-- description:start -->
 
-<p>Table: <code>Customers</code></p>
- <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| customer_id   | int     |
-| customer_name | varchar |
-+---------------+---------+
-customer_id is the primary key for this table.
-Each row of this table contains the information of each customer in the WebStore.
-</pre>
- 
-<p>Table: <code>Orders</code></p>
+<p>Table: <code>LogInfo</code></p>
 <pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| order_id      | int     |
-| sale_date     | date    |
-| order_cost    | int     |
-| customer_id   | int     |
-| seller_id     | int     |
-+---------------+---------+
-order_id is the primary key for this table.
-Each row of this table contains all orders made in the webstore.
-sale_date is the date when the transaction was made between the customer (customer_id) and the seller (seller_id).
-</pre>
-
-<p>Table: <code>Seller</code></p>
-<pre>
-+---------------+---------+
-| Column Name   | Type    |
-+---------------+---------+
-| seller_id     | int     |
-| seller_name   | varchar |
-+---------------+---------+
-seller_id is the primary key for this table.
-Each row of this table contains the information of each seller.
++-------------+----------+
+| Column Name | Type     |
++-------------+----------+
+| account_id  | int      |
+| ip_address  | int      |
+| login       | datetime |
+| logout      | datetime |
++-------------+----------+
+There is no primary key for this table, and it may contain duplicates.
+The table contains information about the login and logout dates of Leetflex accounts. It also contains the IP address from which the account logged in and out.
+It is guaranteed that the logout time is after the login time.
 </pre>
  
 
-Write an  SQL query to report the names of all sellers who did not make any sales in 2020.
+Write an  SQL query to find the account_id of the accounts that should be banned from Leetflex. An account should be banned if it was logged in at some moment from two different IP addresses.
 
-Return the result table ordered by seller_name in ascending order.
+Return the result table in any order.
 
-The query result format is in the following example.
+The query result format is in the following example:
 
 <pre>
-Customer table:
-+--------------+---------------+
-| customer_id  | customer_name |
-+--------------+---------------+
-| 101          | Alice         |
-| 102          | Bob           |
-| 103          | Charlie       |
-+--------------+---------------+
-
-Orders table:
-+-------------+------------+--------------+-------------+-------------+
-| order_id    | sale_date  | order_cost   | customer_id | seller_id   |
-+-------------+------------+--------------+-------------+-------------+
-| 1           | 2020-03-01 | 1500         | 101         | 1           |
-| 2           | 2020-05-25 | 2400         | 102         | 2           |
-| 3           | 2019-05-25 | 800          | 101         | 3           |
-| 4           | 2020-09-13 | 1000         | 103         | 2           |
-| 5           | 2019-02-11 | 700          | 101         | 2           |
-+-------------+------------+--------------+-------------+-------------+
-
-Seller table:
-+-------------+-------------+
-| seller_id   | seller_name |
-+-------------+-------------+
-| 1           | Daniel      |
-| 2           | Elizabeth   |
-| 3           | Frank       |
-+-------------+-------------+
+LogInfo table:
++------------+------------+---------------------+---------------------+
+| account_id | ip_address | login               | logout              |
++------------+------------+---------------------+---------------------+
+| 1          | 1          | 2021-02-01 09:00:00 | 2021-02-01 09:30:00 |
+| 1          | 2          | 2021-02-01 08:00:00 | 2021-02-01 11:30:00 |
+| 2          | 6          | 2021-02-01 20:30:00 | 2021-02-01 22:00:00 |
+| 2          | 7          | 2021-02-02 20:30:00 | 2021-02-02 22:00:00 |
+| 3          | 9          | 2021-02-01 16:00:00 | 2021-02-01 16:59:59 |
+| 3          | 13         | 2021-02-01 17:00:00 | 2021-02-01 17:59:59 |
+| 4          | 10         | 2021-02-01 16:00:00 | 2021-02-01 17:00:00 |
+| 4          | 11         | 2021-02-01 17:00:00 | 2021-02-01 17:59:59 |
++------------+------------+---------------------+---------------------+
 
 Result table:
-+-------------+
-| seller_name |
-+-------------+
-| Frank       |
-+-------------+
-Daniel made 1 sale in March 2020.
-Elizabeth made 2 sales in 2020 and 1 sale in 2019.
-Frank made 1 sale in 2019 but no sales in 2020.
++------------+
+| account_id |
++------------+
+| 1          |
+| 4          |
++------------+
+Account ID 1 --> The account was active from "2021-02-01 09:00:00" to "2021-02-01 09:30:00" with two different IP addresses (1 and 2). It should be banned.
+Account ID 2 --> The account was active from two different addresses (6, 7) but in two different times.
+Account ID 3 --> The account was active from two different addresses (9, 13) on the same day but they do not intersect at any moment.
+Account ID 4 --> The account was active from "2021-02-01 17:00:00" to "2021-02-01 17:00:00" with two different IP addresses (10 and 11). It should be banned.
 </pre>
 
 <!-- description:end -->
@@ -104,14 +66,16 @@ Frank made 1 sale in 2019 but no sales in 2020.
 
 ```sql
 # Write your MySQL query statement below
-select s.seller_name
-from Seller s
-left join Orders o
-on o.seller_id = s.seller_id and sale_date like '2020%' 
-where o.seller_id is null
-order by seller_name
+-- self join- more popular answer on LC
+  
+select distinct l1.account_id
+from LogInfo l1, LogInfo l2
+where l1.account_id = l2.account_id
+and l1.ip_address != l2.ip_address
+and l1.login between l2.login and l2.logout
 
--- no companies listed
+
+-- amazon- 1
 ```
 
 <!-- tabs:end -->
